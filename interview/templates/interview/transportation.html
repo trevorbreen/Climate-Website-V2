@@ -1,1 +1,42 @@
-<p>Transportation</p>
+<h1>Transportation </h1>
+	{{request.user.as_p}}
+<h2>Vehicles</h2>
+{% for each_vehicle in number_of_vehicles %}
+	<form method="post">
+	    {% csrf_token %}
+	    {{ vehicle.as_p }}
+	    <input type="submit" value="Submit Results">
+	</form>
+{% empty %}
+	<p>Not applicable</p>
+{% endfor %}
+
+<h2>Flights</h2>
+{% for each_flight in number_of_flights %}
+	<form method="post" action = '../flight/'>
+	    {% csrf_token %}
+	    {{ flight.as_p }}
+	    <input type="submit" value="Submit Results">
+	</form>
+{% empty %}
+	<p>Not applicable</p>
+{% endfor %}
+
+<h2>Ridesharing</h2>
+{% if user_rideshares %}
+{{rideshare}}
+{% endif %}
+
+<h2>Public Transit</h2>
+{% if user_takes_public_transit %}
+{{transit}}
+{% endif %}
+
+<h2>Cycling</h2>
+ {% if user_bikes %}
+ {{bicycle}}
+{% endif %}
+
+<br>
+<br>
+<a href="{% url 'interview:home' %}">home</a>

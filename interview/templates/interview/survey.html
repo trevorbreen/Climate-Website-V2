@@ -1,10 +1,10 @@
+<p>Question Page</p>
 {% extends 'base.html' %}
-<p>Food</p>
-{{request.user}}
 {% block body %}
+	{{request.user}}
 	<form method="post">
 	    {% csrf_token %}
-	    {{ food.as_p }}
+	    {{ form.as_p }}
 	    <input type="submit" value="Submit Results">
 	</form>
 {% endblock %}

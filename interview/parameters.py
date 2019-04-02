@@ -1,5 +1,5 @@
 #Parameters 
-carbon_footprints ={
+carbon_footprint ={
 'kwh of electricity'  :  0.9,
 'litre of gasoline' : 2.71, #Assuming gas is produced in Alberta
 'litre of diesel' : 3.19,
@@ -27,3 +27,7 @@ carbon_footprints ={
 #calories_per_km_bike = 
 
 #avg_fuel_economy_car_canada =
+
+#emissions_per_minute_bus = 70 000 tonnes CO2e from busses, 30 000 tonnes CO2e from LRT (total 2014)
+
+#emissions_per_minute_train = 

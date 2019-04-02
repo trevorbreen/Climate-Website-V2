@@ -1,16 +1,17 @@
 from django.urls import path
-from django.contrib import admin
-
 from . import views
-from django.contrib.auth import views as auth_views
 
 app_name = 'interview'
 urlpatterns = [
-	path('', views.home, name='home'),
+	path('home/', views.home, name='home'),
 	path('results/', views.results, name='results'),
-	path('provide_survey/', views.provide_survey, name='provide_survey'),
-	path('household/', views.household, name = 'household'),
-	path('transportation/', views.transportation, name = 'transportation'),
-	path('food/', views.food, name = 'food'),
-	path('personal_info/', views.personal_info, name = 'personal_info'),
+	#path('formset_test/', views.formset_test, name='formset_test'),
+	#path('questions/residence/', views.Residence.as_view(), name = 'survey'),
+	path('questions/<str:subject>/', views.GeneralCase.as_view(), name = 'survey'),
+	#path("profile/", views.profile, name = 'profile'),
+	#path('navigation/', views.navigation, name = 'navigation'),
+#	path('transportation_navigation/', views.transportation_navigation, name= 'transportation_navigation'),
+#	path('transportation/', views.transportation, name = 'transportation'),
+	#path('<str:subject>/sub_navigation', views.sub_navigation, name = 'sub_navigation'),
+	#path('<str:subject>/<sub_survey>', views.sub_survey, name = 'sub_survey'),
 ]

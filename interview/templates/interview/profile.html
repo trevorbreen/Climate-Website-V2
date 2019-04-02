@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
+<p>Profile</p>
 {% block body %}
-	{{ request.user.username }}
+	{{request.user}}
 	<form method="post">
 	    {% csrf_token %}
-	    {{ form }}
-	    <input type="hidden" value= {{ request.user.username }}>
+	    {{ profile.as_p }}
 	    <input type="submit" value="Submit Results">
 	</form>
 {% endblock %}

@@ -1,9 +1,9 @@
-from django.forms import ModelForm
+from django.forms import ModelForm, modelformset_factory
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth.models import User
-from .models import Survey, Food, Transportation, Vehicle 
+from .models import  Profile, Food, Vehicle 
 from .models import Rideshare, Flight, Transit, Bicycle
-from .models import  Household, Appliances, Trash, NaturalGas, Electricity
+from .models import  Residence, Appliances, Trash, NaturalGas, Electricity
 from .models import CustomUser
 
 class CustomUserCreationForm(UserCreationForm):
@@ -11,26 +11,21 @@ class CustomUserCreationForm(UserCreationForm):
         model = CustomUser
         fields = ('username', 'email')
 
+
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
         fields = ('username', 'email')
 
-class SurveyForm(ModelForm):
+class ProfileForm(ModelForm):
 	class Meta:
-		model = Survey
-		fields = ('electricity', 'natgas', 'gasoline',)
+		model = Profile
+		fields = ('age', 'sex', 'annual_income', 'savings',  'number_of_residences', 'number_of_vehicles', 'number_of_flights', 'uses_rideshare', 'takes_public_transit', 'rides_bike', 'own_summer_bike', 'own_winter_bike', 'shifts_per_week', 'hours_worked', 'distance_to_work')
 
 class SignUpForm(ModelForm):
 	class Meta:
 		model = User
 		fields = ('username', 'first_name', 'last_name', 'email', 'password',)
-
-class TransportationForm(ModelForm):
-	class Meta:
-		model = Transportation
-		fields = ('vehicles_owned', 'flights_taken', 'use_rideshare', 'ride_public_transit', 'own_summer_bike', 'own_winter_bike',
-					   'distance_to_work')
 
 class VehicleForm(ModelForm):
 	class Meta:
@@ -58,9 +53,9 @@ class BicycleForm(ModelForm):
 		model = Bicycle
 		fields = ('journey_time', 'spring_journeys' ,'summer_journeys', 'autumn_journeys', 'winter_journeys')
 
-class HouseholdForm(ModelForm):
+class ResidenceForm(ModelForm):
 	class Meta:
-		model = Household
+		model = Residence
 		fields = ('utilities_included', 'electricity_bills', 'renewable_energy_share', 'gas_bills', 'biogas_share', 'residents',
 					  'size', 'housing_cost', 'able_to_move', 'building_type', 'owernship_type' )
 
@@ -94,3 +89,52 @@ class FoodForm(ModelForm):
 	class Meta:
 		model = Food
 		fields = ('diet', 'food_intake', 'local_share', 'seasonal', 'grocery_cost', 'restaurant_cost')
+
+all_forms_get = {
+	"profile": ProfileForm(),
+	#"transportation": TransportationForm(),
+	"vehicle": VehicleForm(),
+	"rideshare": RideshareForm(),
+	"flight": FlightForm(),
+	"transit": TransitForm(),
+	"bicycle": BicycleForm(),
+	"residence": ResidenceForm(),
+	"appliances": AppliancesForm(),
+	"trash": TrashForm(),
+	"natural_gas": NaturalGasForm(),
+	"electricity": ElectricityForm(),
+	"food": FoodForm(),
+}
+def all_forms(*request_type):
+	all_forms = {
+	"profile": ProfileForm(request_type),
+	"vehicle": VehicleForm(request_type),
+	"rideshare": RideshareForm(request_type),
+	"flight": FlightForm(request_type),		
+	"transit": TransitForm(request_type),
+	"bicycle": BicycleForm(request_type),
+	"residence": ResidenceForm(request_type),
+	"appliances": AppliancesForm(request_type),
+	"trash": TrashForm(request_type),
+	"natural_gas": NaturalGasForm(request_type),
+	"electricity": ElectricityForm(request_type),
+	"food": FoodForm(request_type),
+	}
+	return all_forms
+def all_forms_post(subject, request_type):
+	all_forms = {
+	"profile": ProfileForm(request_type),
+#	"transportation": TransportationForm(request_type),
+	"vehicle": VehicleForm(request_type),
+	"rideshare": RideshareForm(request_type),
+	"flight": FlightForm(request_type),
+	"transit": TransitForm(request_type),
+	"bicycle": BicycleForm(request_type),
+	"residence": ResidenceForm(request_type),
+	"appliances": AppliancesForm(request_type),
+	"trash": TrashForm(request_type),
+	"natural_gas": NaturalGasForm(request_type),
+	"electricity": ElectricityForm(request_type),
+	"food": FoodForm(request_type),
+	}
+	return all_forms[subject]

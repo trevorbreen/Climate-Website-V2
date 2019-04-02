@@ -1,7 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser 
 from django.conf import settings
-from .parameters import carbon_footprints
+from .parameters import carbon_footprint
+
+#ISSUES
+#Issue: str() method does not produce unique names due to foreign keys
+#Solution: number the residence and transportation modules for each user, format 'user_residence_1_trash_info'
+#Issue: User cannot overwrite OneToOneField 
 
 # Create your models here.
 class CustomUser(AbstractUser):
@@ -20,35 +25,22 @@ class Profile(models.Model):
 	annual_income = models.IntegerField("What is your annual income before taxes?", blank = True, null=True)
 	savings = models.IntegerField("How much money do you save on a yearly basis? Use negative numbers to represent net borrowing.", blank = True, null=True)
 	hours_worked = models.IntegerField("How many hours do you spend working in a typical week?", blank = True, null=True)
+	shifts_per_week = models.IntegerField("How many shifts do you work per week?", blank= True, null = True)
+	number_of_residences = models.IntegerField("How many residences do you have?", blank = True, null=True)
+	number_of_vehicles = models.IntegerField("How many vehicles do you own?", blank= True, null = True)
+	number_of_flights = models.IntegerField("How many flights did you take last year?", blank= True, null = True)
+	uses_rideshare = models.BooleanField("Do you carpool, use taxis, or use ridesharing services?", blank= True, null = True)
+	takes_public_transit = models.BooleanField("Do you use public transit?", blank= True, null = True)
+	rides_bike = models.BooleanField("Do you get around on a bike?", blank= True, null = True)
+	own_summer_bike = models.BooleanField("Do you own a bike that can be used when there is no snow on the ground?", blank= True, null = True)
+	own_winter_bike = models.BooleanField("Do you own a bike that can be used when there is snow on the ground?", blank= True, null = True)
+	distance_to_work = models.IntegerField("How many kilometers from your house to your workplace?", blank= True, null = True)
 	#methodsOneToOneField
 	def __str__(self):
-		return self.user
-
-class Survey(models.Model):
-	electricity = models.DecimalField('how many kwh of electricity do you use per month?', max_digits=10, decimal_places=2)
-	natgas = models.DecimalField('how many GJ of natural gas do you use per month?', max_digits=10, decimal_places=2)
-	gasoline = models.DecimalField('how many litres of gasoline do you use per month?',max_digits=10,	decimal_places=2)
-	user =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-	
-	def __str__(self):
-		return str(self.user)
-		
-#Transportation Databases
-class Transportation(models.Model):
-	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-	vehicles_owned = models.IntegerField("How many vehicles do you own?")
-	flights_taken = models.IntegerField("How many flights did you take last year?")
-	use_rideshare = models.BooleanField("Do you carpool, use taxis, or use ridesharing services?")
-	ride_public_transit = models.BooleanField("Do you use public transit?")
-	own_summer_bike = models.BooleanField("Do you own a bike that can be used when there is no snow on the ground?")
-	own_winter_bike = models.BooleanField("Do you own a bike that can be used when there is snow on the ground?")
-	distance_to_work = models.IntegerField("How many kilometers from your house to your workplace?")
-	#methods
-	def __str__(self):
-		return self.user + 'transportation info'
+		return str(self.user) # 'profile'
 
 class Vehicle(models.Model):
-	transportation = models.ForeignKey(Transportation, on_delete=models.CASCADE, null=True)
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	DIESEL = 'diesel'
 	GASOLINE = 'gasoline'
 	fuel_type_choices = ((DIESEL, 'diesel'),(GASOLINE, 'gasoline'))
@@ -63,15 +55,23 @@ class Vehicle(models.Model):
 	fuel_cost = models.IntegerField("How much do you spend on fuel in a typical month?")
 	#methods
 	def __str__(self):
-		return self.transportation.user + 'vehicle info'
+		return str('profile')
 	def footprint(self):
 		if self.fuel_type == 'diesel':
-			return self.fuel_ups*self.tank_size*carbon_footprints['litre of diesel']
+			return self.fuel_ups*self.tank_size*carbon_footprint['litre of diesel']
 		else:
-			return self.fuel_ups*self.tank_size*carbon_footprints['litre of gasoline']
+			return self.fuel_ups*self.tank_size*carbon_footprint['litre of gasoline']
+	def footprint_distance_fuel_economy_approach(self):
+		if self.fuel_type == 'diesel':
+			fuel_burned_in_city = self.km_driven_city * self.fuel_economy_city
+			fuel_burned_on_highway = self.km_driven_highway * self.fuel_economy_highway
+			total_fuel_burned =  fuel_burned_in_city + fuel_burned_on_highway
+			return total_fuel_burned * carbon_footprint['litre of diesel']
+		else:
+			return total_fuel_burned * carbon_footprint['litre of gasoline']
 
 class Rideshare(models.Model):
-	transportation = models.ForeignKey(Transportation, on_delete=models.CASCADE, null=True)
+	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	journeys = models.IntegerField("How often do you use cabs or ridesharing services in a typical month?")
 	journey_time = models.IntegerField("When you use cabs or ridesharing services, how many minutes is a typical journey?")
 	cost = models.IntegerField("How much do you spend on cab fare and ride sharing services in a typical month?")
@@ -81,22 +81,25 @@ class Rideshare(models.Model):
 	def footprint(self, avg_vehicle_speed, avg_fuel_economy):
 		distance_travelled = self.journeys*self.journey_time*avg_vehicle_speed
 		fuel_used = distance_travelled * avg_fuel_economy
-		return fuel_used *carbon_footprints['litre of gasoline']
+		return fuel_used *carbon_footprint['litre of gasoline']
 
 class Flight(models.Model):
-	transportation = models.ForeignKey(Transportation, on_delete=models.CASCADE, null=True)
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	length = models.DecimalField("How many hours was this flight?", max_digits=10, decimal_places=2)
 	round_trip = models.BooleanField("was this flight round trip?", null=True)
 	cost = models.IntegerField("How much did this flight cost?")
 	#methods
 	def __str__(self):
-		return self.transportation.user + 'flight info'
+		return str(self.user)+'_flight_info_'+str(self.id)
 	def footprint(self):
+		flight_footprint = self.length * carbon_footprint
 		if self.round_trip:
-			return self.length * carbon_footprints['hour of flight']
+			return flight_footprint * 2 # 2 to account for round trip
+		else:
+			return flight_footprint
 
 class Transit(models.Model):
-	transportation = models.ForeignKey(Transportation, on_delete=models.CASCADE, null=True)
+	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	train_journeys = models.IntegerField("How many times do you ride the train on a typical week?")
 	train_journey_time = models.IntegerField("When you ride the train, how many minutes is a typical journey?")
 	bus_journeys = models.IntegerField("How many times do you ride the bus on a typical week?")
@@ -104,12 +107,12 @@ class Transit(models.Model):
 	cost = models.IntegerField("How much do you spend on transit costs in a typical month?")
 	#methods
 	def __str__(self):
-		return self.transportation.user + 'public transit info'
+		return str(self.transportation.user) + '_public_transit_info'
 	def footprint(self):
 		pass
 
 class Bicycle(models.Model):
-	transportation = models.ForeignKey(Transportation, on_delete=models.CASCADE, null=True)
+	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	journey_time = models.IntegerField("When you ride the bike, how many minutes is a typical journey?")
 	spring_journeys = models.IntegerField("How many journeys do you take on your bike in a typical week from April to May?")
 	summer_journeys = models.IntegerField("How many journeys do you take on your bike in a typical week from June to August?")
@@ -117,16 +120,16 @@ class Bicycle(models.Model):
 	winter_journeys = models.IntegerField("How many journeys do you take on your bike in a typical week from November to March?")
 	#methods
 	def __str__(self):
-		return self.transportation.user + 'bicycle info'
+		return str(self.transportation.user) + '_bicycle_info'
 	def footprint(self, calories_per_km, carbon_per_calorie, avg_bike_speed):
-		distance = avg_bike_speed * self.journey_time *(self.spring_journeys/6 + self.summer_journeys/4 + self.autumn_journeys /6 +self.winter_journeys*(5/12))
-		calories = distance * calories_per_km
+		distance_per_year = avg_bike_speed * self.journey_time *(self.spring_journeys/6 + self.summer_journeys/4 + self.autumn_journeys /6 +self.winter_journeys*(5/12)) #fractions represent share of months in season 
+		calories = distance_per_year * calories_per_km
 		return carbon_per_calorie * calories
 
 
-#Household Databases
-class Household(models.Model):
-	user  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+#residence Databases
+class Residence(models.Model):
+	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	utilities_included = models.BooleanField("Are utilities included in your rent?")
 	electricity_bills = models.BooleanField("Can you get access to your electricity bill?", null=False)
 	renewable_energy_share = models.IntegerField("What percentage of your energy comes from renewables?", default=12.3)
@@ -152,12 +155,12 @@ class Household(models.Model):
 	owernship_type = models.CharField(max_length  = 50, choices = ownership_type_choices)
 	#methods
 	def __str__(self):
-		return self.user + 'housing info'
+		return str(self.user) + '_housing_info'
 	def footprint(self):
 		pass
 
 class Appliances(models.Model):
-	household = models.ForeignKey(Household, on_delete=models.CASCADE, null=True)
+	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	FRIDGE = 'fridge'
 	DEEPFREEZE = 'freezer'
 	WASHER = 'washer'
@@ -177,33 +180,33 @@ class Appliances(models.Model):
 	high_efficiency_appliances =  models.CharField(max_length  = 50, choices = appliances_choices)
 	#methods
 	def __str__(self):
-		return self.user + 'appliance info'
+		return str(self.residence.user) + 'appliance info'
 
 class Trash(models.Model):
-	household = models.ForeignKey(Household, on_delete=models.CASCADE, null=True)
+	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	garbage_bin_volume = models.IntegerField("How many litres does your trash bin hold?")
 	garbage_bin_fill_time = models.IntegerField("How many days does it usually take before you need to take out the trash?")
 	#methods
 	def __str__(self):
-		return self.household.user + 'trash info'
+		return str(self.residence.user) + '_trash_info'
 	def footprint(self):
 		pass
 
 class NaturalGas(models.Model):
-	household = models.ForeignKey(Household, on_delete=models.CASCADE, null=True)
+	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	#consumption
-	january_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in January?")
-	february_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in February?")
-	march_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in March?")
-	april_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in April?")
-	may_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in May?")
-	june_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in June?")
-	july_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in July?")
-	august_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in August?")
-	september_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in September?")
-	october_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in October?")
-	november_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in November?")
-	december_natural_gas = models.IntegerField("How many GJ of natural gas did your household use in December?")
+	january_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in January?")
+	february_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in February?")
+	march_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in March?")
+	april_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in April?")
+	may_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in May?")
+	june_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in June?")
+	july_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in July?")
+	august_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in August?")
+	september_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in September?")
+	october_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in October?")
+	november_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in November?")
+	december_natural_gas = models.IntegerField("How many GJ of natural gas did your residence use in December?")
 	#costs
 	january_cost = models.DecimalField("How much was your natural gas bill in January?", max_digits=10, decimal_places=2)
 	february_cost = models.DecimalField("How much was your natural gas bill in February?", max_digits=10, decimal_places=2)
@@ -219,11 +222,11 @@ class NaturalGas(models.Model):
 	december_cost = models.DecimalField("How much was your natural gas bill in December?", max_digits=10, decimal_places=2)
 	#methods
 	def __str__(self):
-		return self.user + 'natural gas info'
+		return str(self.residence.user) + '_natural_gas_info'
 	def average_monthy_natural_gas_consumption(self):
 		total_consumption = 0
 		for monthly_consumption in vars(self):
-			if isinstance(monthly_consumption, int):
+			if isinstance(monthly_consumption, int): #by using integers for natural gas consumption and decimals for costs, this test will only get the consumption volumes
 				total_consumption += monthly_consumption
 		return total_consumption/12
 	def average_monthy_natural_gas_cost(self):
@@ -233,23 +236,23 @@ class NaturalGas(models.Model):
 				total_cost += monthly_cost
 		return total_cost/12
 	def footprint(self):
-		return self.average_monthy_natural_gas_consumption() * 12 * carbon_footprints['GJ of natural gas']
+		return self.average_monthy_natural_gas_consumption() * 12 * carbon_footprint['GJ of natural gas']
 
 class Electricity(models.Model):
-	household = models.ForeignKey(Household, on_delete=models.CASCADE, null=True)
+	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	#consumption
-	january_electricity = models.IntegerField("How many kwh of electricity did your household use in January?")
-	february_electricity = models.IntegerField("How many kwh of electricity did your household use in February?")
-	march_electricity = models.IntegerField("How many kwh of electricity did your household use in March?")
-	april_electricity = models.IntegerField("How many kwh of electricity did your household use in April?")
-	may_electricity = models.IntegerField("How many kwh of electricity did your household use in May?")
-	june_electricity = models.IntegerField("How many kwh of electricity did your household use in June?")
-	july_electricity = models.IntegerField("How many kwh of electricity did your household use in July?")
-	august_electricity = models.IntegerField("How many kwh of electricity did your household use in August?")
-	september_electricity = models.IntegerField("How many kwh of electricity did your household use in September?")
-	october_electricity = models.IntegerField("How many kwh of electricity did your household use in October?")
-	november_electricity = models.IntegerField("How many kwh of electricity did your household use in November?")
-	december_electricity = models.IntegerField("How many kwh of electricity did your household use in December?")
+	january_electricity = models.IntegerField("How many kwh of electricity did your residence use in January?")
+	february_electricity = models.IntegerField("How many kwh of electricity did your residence use in February?")
+	march_electricity = models.IntegerField("How many kwh of electricity did your residence use in March?")
+	april_electricity = models.IntegerField("How many kwh of electricity did your residence use in April?")
+	may_electricity = models.IntegerField("How many kwh of electricity did your residence use in May?")
+	june_electricity = models.IntegerField("How many kwh of electricity did your residence use in June?")
+	july_electricity = models.IntegerField("How many kwh of electricity did your residence use in July?")
+	august_electricity = models.IntegerField("How many kwh of electricity did your residence use in August?")
+	september_electricity = models.IntegerField("How many kwh of electricity did your residence use in September?")
+	october_electricity = models.IntegerField("How many kwh of electricity did your residence use in October?")
+	november_electricity = models.IntegerField("How many kwh of electricity did your residence use in November?")
+	december_electricity = models.IntegerField("How many kwh of electricity did your residence use in December?")
 	#costs
 	january_cost = models.DecimalField("How much was your electricity bill in January?", max_digits=10, decimal_places=2)
 	february_cost = models.DecimalField("How much was your electricity bill in February?", max_digits=10, decimal_places=2)
@@ -265,7 +268,7 @@ class Electricity(models.Model):
 	december_cost = models.DecimalField("How much was your electricity bill in December?", max_digits=10, decimal_places=2)
 	#methods
 	def __str__(self):
-		return self.household.user + 'electricity info'
+		return str(self.residence.user) + '_electricity_info'
 	def average_monthy_electricity_consumption(self):
 		total_consumption = 0
 		for monthly_consumption in vars(self):
@@ -279,12 +282,12 @@ class Electricity(models.Model):
 				total_cost += monthly_cost
 		return total_cost/12
 	def footprint(self):
-		return self.average_monthy_electricity_consumption() * 12 * carbon_footprints['kwh of electricity']
+		return self.average_monthy_electricity_consumption() * 12 * carbon_footprint['kwh of electricity']
 
 
 #Food Databases
 class Food(models.Model):
-	user  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+	user  = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	OMNIVORE = 'omnivore'
 	NOBEEF = 'beefless'
 	VEGGIE = 'vegetarian'
@@ -296,21 +299,25 @@ class Food(models.Model):
 	ABOUTTHESAME = 1
 	SOMEWHATLESS = 0.75
 	ALOTLESS = 0.5
-	food_intake_choices = ((ALOTMORE, 'a lot more than other people my age'), (SOMEWHATMORE, 'somewhat more than other people my age'), (ABOUTTHESAME, 'about the same as other people my age'), (SOMEWHATLESS, 'somewhat less than other people my age'), (ALOTLESS, 'a lot less than other people my age'))
-	food_intake =  models.CharField("What is the best way to describe the amount of food you eat?", max_length  = 50, choices=food_intake_choices)
+	food_intake_choices = ((ALOTMORE, 'a lot more than other people my age'),
+										(SOMEWHATMORE, 'somewhat more than other people my age'),
+										(ABOUTTHESAME, 'about the same as other people my age'),
+										(SOMEWHATLESS, 'somewhat less than other people my age'),
+										(ALOTLESS, 'a lot less than other people my age'))
+	food_intake =  models.DecimalField("What is the best way to describe the amount of food you eat?", choices=food_intake_choices, max_digits=3, decimal_places=2)
 	local_share = models.IntegerField("What percentage of your diet is composed of locally sourced food?")
 	seasonal = models.BooleanField("Do you buy fruits and vegtables out of season?")
 	grocery_cost = models.IntegerField("How much do you spend on groceries in a typical week?")
 	restaurant_cost = models.IntegerField("How much do you spend on food from restaurants in a typical week?")
 	#methods
 	def __str__(self):
-		return self.user + 'food info'
+		return str(self.user) + '_food_info'
 	def footprint(self):
 		if self.diet == 'omnivore':
-			return carbon_footprints['omnivore diet']
+			return carbon_footprint['omnivore diet']
 		if self.diet == 'no beef':
-			return carbon_footprints['no beef diet']
+			return carbon_footprint['no beef diet']
 		if self.diet == 'vegetarian':
-			return carbon_footprints['vegetarian diet']
+			return carbon_footprint['vegetarian diet']
 		if self.diet == 'vegan':
-			return carbon_footprints['vegan diet']
+			return carbon_footprint['vegan diet']

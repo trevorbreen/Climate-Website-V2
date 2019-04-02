@@ -1,10 +1,9 @@
-{% extends 'base.html' %}
-<p>Food</p>
-{{request.user}}
+<p>{{subject}}</p>
 {% block body %}
 	<form method="post">
 	    {% csrf_token %}
-	    {{ food.as_p }}
+	    {{ user_forms.as_p }}
 	    <input type="submit" value="Submit Results">
 	</form>
 {% endblock %}
+<a href="{% url 'interview:home' %}">home</a>

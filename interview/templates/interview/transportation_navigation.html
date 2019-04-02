@@ -1,0 +1,25 @@
+<p>transportation_navigation</p>
+<p>Synax is not going to work here</p>
+
+{% for vehicle in vehicle_range %}
+	<a href="{% url 'interview:survey' 'vehicle' %}"> Vehicle {{ forloop.counter }} </a>
+	<br>
+{% endfor %}
+{% for flight in flight_range %}
+	<a href="{% url 'interview:survey' 'flight' %}"> Flight {{ forloop.counter }} </a>
+	<br>
+{% endfor %}
+
+<!--{% for page in related_surveys %}
+	<a href="{% url 'interview:survey' page %}"> {{ page }} </a>
+	<br>
+{% endfor %}
+{% for page in vehicle_range %}
+	<a href="{% url 'interview:survey' vehicle %}"> Vehicle {{ forloop.counter }} </a>
+	<br>
+{% endfor %}
+{% for page in related_surveys %}
+	<a href="{% url 'interview:survey' flight %}"> Flight {{ forloop.counter }} </a>
+	<br>
+{% endfor %}
+ Need to make transportation and household hyperlinks dependend on responses, which means that we will need seperate views for them and seperate navigation view or template logic. Generally speaking, we could say that if a boolean field is true, then an associated hyperlink should exist. For certain integer fields, the number should correspond to a number of hyperlinks.  -->

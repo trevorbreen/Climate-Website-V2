@@ -1,0 +1,13 @@
+<p>Multiple Pages</p>
+<p>Hello {{request.user}}!</p>
+<br>
+{% block body %}
+{% for key in multiple_forms %}
+
+{% endfor %}
+  	<form method="post">
+	    {% csrf_token %}
+	    {{ multiple_forms }}
+	    <input type="submit" value="Submit Results">
+	</form>
+{% endblock %}
