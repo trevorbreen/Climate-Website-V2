@@ -13,7 +13,7 @@ carbon_footprint ={
 'kg of pork' : 4.11,
 'kg of chicken' : 1.79,
 'L of milk' : 0.92,
-'kg of chees	e' : 7.36,
+'kg of cheese' : 7.36,
 'dozen eggs' : 1.78,
 'one dollar in alberta' : 0.834,
 'one dollar in canada'  : 0.346,
@@ -22,6 +22,7 @@ carbon_footprint ={
 'km on bicycle' : 0, #find
 'kg of trash' : 0, #find
 }
+
 #avg_bike_speed = 
 
 #calories_per_km_bike = 

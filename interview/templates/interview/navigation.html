@@ -1,9 +1,0 @@
-<p>Navigation</p>
-<a href="{% url 'interview:survey' 'transportation' %}">Transportation</a>
-<br>
-<a href="{% url 'interview:survey' 'food' %}">Food</a>
-<br>
-{% for i in range %}
-	<a href="{% url 'interview:survey' 'household' %}">Residence {{ forloop.counter }} </a>
-	<br>
-{% endfor %}

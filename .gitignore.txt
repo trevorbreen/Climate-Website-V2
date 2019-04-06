@@ -1,3 +1,0 @@
-/carbon/__pycache__
-/interview/__pycache__
-/interview/migrations/__pycache__

@@ -1,10 +1,10 @@
-from django.forms import ModelForm, modelformset_factory
+from django.forms import modelformset_factory
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from django.contrib.auth.models import User
 from .models import  Profile, Food, Vehicle 
 from .models import Rideshare, Flight, Transit, Bicycle
 from .models import  Residence, Appliances, Trash, NaturalGas, Electricity
 from .models import CustomUser
+
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm):
@@ -17,124 +17,34 @@ class CustomUserChangeForm(UserChangeForm):
         model = CustomUser
         fields = ('username', 'email')
 
-class ProfileForm(ModelForm):
-	class Meta:
-		model = Profile
-		fields = ('age', 'sex', 'annual_income', 'savings',  'number_of_residences', 'number_of_vehicles', 'number_of_flights', 'uses_rideshare', 'takes_public_transit', 'rides_bike', 'own_summer_bike', 'own_winter_bike', 'shifts_per_week', 'hours_worked', 'distance_to_work')
 
-class SignUpForm(ModelForm):
-	class Meta:
-		model = User
-		fields = ('username', 'first_name', 'last_name', 'email', 'password',)
-
-class VehicleForm(ModelForm):
-	class Meta:
-		model = Vehicle
-		fields = ('fuel_type', 'fuel_ups', 'tank_size', 'fuel_economy_city', 'fuel_economy_highway',
-					  'km_driven_city', 'km_driven_highway', 'vehicle_cost', 'fuel_cost' ) #add 'fuel_economy_city
-
-class RideshareForm(ModelForm):
-	class Meta:
-		model = Rideshare
-		fields = ('journeys', 'journey_time', 'cost')
-
-class FlightForm(ModelForm):
-	class Meta:
-		model = Flight
-		fields = ('length', 'round_trip',  'cost')
-
-class TransitForm(ModelForm):
-	class Meta:
-		model = Transit
-		fields = ('train_journeys', 'train_journey_time', 'bus_journeys', 'bus_journey_time', 'cost')
-
-class BicycleForm(ModelForm):
-	class Meta:
-		model = Bicycle
-		fields = ('journey_time', 'spring_journeys' ,'summer_journeys', 'autumn_journeys', 'winter_journeys')
-
-class ResidenceForm(ModelForm):
-	class Meta:
-		model = Residence
-		fields = ('utilities_included', 'electricity_bills', 'renewable_energy_share', 'gas_bills', 'biogas_share', 'residents',
-					  'size', 'housing_cost', 'able_to_move', 'building_type', 'owernship_type' )
-
-class AppliancesForm(ModelForm):
-	class Meta:
-		model = Appliances
-		fields = ('appliances_in_residence', 'high_efficiency_appliances')
-
-class TrashForm(ModelForm):
-	class Meta:
-		model = Trash
-		fields = ('garbage_bin_volume', 'garbage_bin_fill_time')
-
-class NaturalGasForm(ModelForm):
-	class Meta:
-		model = NaturalGas
-		fields = ('january_natural_gas', 'february_natural_gas', 'march_natural_gas', 'april_natural_gas', 'may_natural_gas', 'june_natural_gas',
-		 			  'july_natural_gas', 'august_natural_gas', 'september_natural_gas', 'october_natural_gas', 'november_natural_gas', 'december_natural_gas',
-					  'january_cost', 'february_cost', 'march_cost', 'april_cost', 'may_cost', 'june_cost',
-		 			  'july_cost', 'august_cost', 'september_cost', 'october_cost', 'november_cost', 'december_cost', )
-
-class ElectricityForm(ModelForm):
-	class Meta:
-		model = Electricity
-		fields = ('january_electricity', 'february_electricity', 'march_electricity', 'april_electricity', 'may_electricity', 'june_electricity',
-		 			  'july_electricity', 'august_electricity', 'september_electricity', 'october_electricity', 'november_electricity', 'december_electricity',
-					  'january_cost', 'february_cost', 'march_cost', 'april_cost', 'may_cost', 'june_cost',
-		 			  'july_cost', 'august_cost', 'september_cost', 'october_cost', 'november_cost', 'december_cost', )
-
-class FoodForm(ModelForm):
-	class Meta:
-		model = Food
-		fields = ('diet', 'food_intake', 'local_share', 'seasonal', 'grocery_cost', 'restaurant_cost')
-
-all_forms_get = {
-	"profile": ProfileForm(),
-	#"transportation": TransportationForm(),
-	"vehicle": VehicleForm(),
-	"rideshare": RideshareForm(),
-	"flight": FlightForm(),
-	"transit": TransitForm(),
-	"bicycle": BicycleForm(),
-	"residence": ResidenceForm(),
-	"appliances": AppliancesForm(),
-	"trash": TrashForm(),
-	"natural_gas": NaturalGasForm(),
-	"electricity": ElectricityForm(),
-	"food": FoodForm(),
-}
-def all_forms(*request_type):
-	all_forms = {
-	"profile": ProfileForm(request_type),
-	"vehicle": VehicleForm(request_type),
-	"rideshare": RideshareForm(request_type),
-	"flight": FlightForm(request_type),		
-	"transit": TransitForm(request_type),
-	"bicycle": BicycleForm(request_type),
-	"residence": ResidenceForm(request_type),
-	"appliances": AppliancesForm(request_type),
-	"trash": TrashForm(request_type),
-	"natural_gas": NaturalGasForm(request_type),
-	"electricity": ElectricityForm(request_type),
-	"food": FoodForm(request_type),
+all_models = {
+	"profile": Profile,
+	"vehicle": Vehicle,
+	"rideshare": Rideshare,
+	"flight": Flight,
+	"transit": Transit,
+	"bicycle": Bicycle,
+	"residence": Residence,
+	"appliances": Appliances,
+	"trash": Trash,
+	"natural_gas": NaturalGas,
+	"electricity": Electricity,
+	"food": Food,
 	}
-	return all_forms
-def all_forms_post(subject, request_type):
-	all_forms = {
-	"profile": ProfileForm(request_type),
-#	"transportation": TransportationForm(request_type),
-	"vehicle": VehicleForm(request_type),
-	"rideshare": RideshareForm(request_type),
-	"flight": FlightForm(request_type),
-	"transit": TransitForm(request_type),
-	"bicycle": BicycleForm(request_type),
-	"residence": ResidenceForm(request_type),
-	"appliances": AppliancesForm(request_type),
-	"trash": TrashForm(request_type),
-	"natural_gas": NaturalGasForm(request_type),
-	"electricity": ElectricityForm(request_type),
-	"food": FoodForm(request_type),
+
+	
+all_formsets = {
+	"profile": modelformset_factory(Profile, exclude=('user',), extra=1, max_num = 1),
+	"vehicle": modelformset_factory(Vehicle, exclude=('user',)),
+	"rideshare": modelformset_factory(Rideshare, exclude=('user',), max_num = 1),
+	"flight": modelformset_factory(Flight, exclude=('user',)),
+	"transit": modelformset_factory(Transit, exclude=('user',), max_num = 1),
+	"bicycle": modelformset_factory(Bicycle, exclude=('user',), max_num = 1),
+	"residence": modelformset_factory(Residence, exclude=('user',), max_num = 1),
+	"appliances": modelformset_factory(Appliances, exclude=('user',), max_num = 1),
+	"trash": modelformset_factory(Trash, exclude=('user',), max_num = 1),
+	"natural_gas": modelformset_factory(NaturalGas, exclude=('user',), max_num = 1),
+	"electricity": modelformset_factory(Electricity, exclude=('user',), max_num = 1),
+	"food": modelformset_factory(Food, exclude=('user',), max_num = 1),
 	}
-	return all_forms[subject]
