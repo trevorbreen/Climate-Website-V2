@@ -25,5 +25,6 @@ urlpatterns = [
 	path('logout/', auth_views.LogoutView.as_view(template_name = 'interview/logged_out.html', next_page = '/login/'), name = 'logout'),
 	path('login/', auth_views.LoginView.as_view(template_name ='interview/login.html'), name = 'login'),
 	path('signup/', int_views.SignUp.as_view(), name = 'signup'),
-	path('', include('django.contrib.auth.urls'))
+	path('', include('django.contrib.auth.urls')),
+    path('', auth_views.LoginView.as_view(template_name ='interview/login.html'), name = 'login2'),
 ]

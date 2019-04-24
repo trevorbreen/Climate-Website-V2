@@ -16,7 +16,7 @@ def increase_fuel_efficiency(yearly_distance_driven, fuel_type):
 	increase_in_efficiency_per_km = (old_litres_per_hundred_km - new_litres_per_hundred_km) * 100
 	return increase_in_efficiency_per_km * carbon_footprint[fuel_type] *  yearly_distance_driven  
 
-def reduce_commute(old_distance_to_work_city, new_distance_to_work_city, new_distance_to_work_freeway, old_distance_to_work_freeway shifts_per_week, city_litres_per_hundred_km, freeway_litres_per_hundred_km, fuel_type):
+def reduce_commute(old_distance_to_work_city, new_distance_to_work_city, new_distance_to_work_freeway, old_distance_to_work_freeway, shifts_per_week, city_litres_per_hundred_km, freeway_litres_per_hundred_km, fuel_type):
 	emissions_per_kilometre_city = carbon_footprint[fuel_type] * city_litres_per_hundred_km *100 #multiply by 100 to get litre per kilometre
 	emissions_per_kilometre_freeway = carbon_footprint[fuel_type] * freeway_litres_per_hundred_km *100 #multiply by 100 to get litre per kilometre
 	old_km_commuted_per_month_city = old_distance_to_work_city * shifts_per_week * 2 # multiply by 2 to get round trip
@@ -39,7 +39,7 @@ def bike_to_work(months_per_year, distance_to_work, shifts_per_week, fuel_type, 
 	carbon_per_calorie = carbon_footprint[diet]/calories_per_year
 	emissions_from_biking = distance_to_work * calories_burned * carbon_per_calorie *2
 	return emissions_from_driving - emissions_from_biking
-:
+
 def emissions_per_km (units_of_fuel_per_km, fuel_type):
 	#could be used within the adjust_share_of_transportation function 
 	return units_of_fuel_per_km * carbon_footprint[fuel_type] #what about busses and trains? 
@@ -59,9 +59,9 @@ def weekly_km_travelled_car(method, **kwargs):
 		return known_distance_by_car
 
 
-def yearly_km_travelled(bus_journeys_per_week, average_bus_journey_time, avg_bus_speed, avg_train_speed, distance_by_car):
-		distance_by_bus = bus_journeys_per_week * average_bus_journey_time * avg_bus_speed * 52 #52 weeks in a year
-		distance_by_train = train_journeys_per_week * average_train_journey_time * avg_train_speed * 52 
+def yearly_km_travelled(bus_journeys_per_week, average_bus_journey_time, avg_bus_speed, train_journeys_per_week, average_train_journey_time, avg_train_speed, distance_by_car):
+	distance_by_bus = bus_journeys_per_week * average_bus_journey_time * avg_bus_speed * 52 #52 weeks in a year
+	distance_by_train = train_journeys_per_week * average_train_journey_time * avg_train_speed * 52 
 	return distance_by_car + distance_by_train + distance_by_bus
 
 

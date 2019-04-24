@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, Profile, Bicycle, Vehicle, Flight, Rideshare, Transit, Food, Residence, Electricity, NaturalGas, Trash, Appliances
+from .models import CustomUser, Profile, Bicycle, Vehicle, Flight, Rideshare, Transit, Food, Residence, Electricity, NaturalGas, Trash 
 
 class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
@@ -23,4 +23,4 @@ admin.site.register(Residence)
 admin.site.register(Electricity)
 admin.site.register(NaturalGas)
 admin.site.register(Trash)
-admin.site.register(Appliances)
+#admin.site.register(Appliances)

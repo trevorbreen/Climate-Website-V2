@@ -1,4 +1,14 @@
-<p>Total Carbon Footprint:</p>
-{{total_footprint}}
-
-<p></p>
+<h1>Footprints</h1>
+<br>
+<table>
+		<tr>
+		<td><p>Item</p></td>
+		<td><p>Footprint</p></td>
+	</tr>
+{% for topic, footprint  in footprint_table.items %}
+	<tr>
+		<td><p>{{topic}}</p></td>
+		<td><p>{{footprint}}</p></td>
+	</tr>
+{% endfor %}
+</table>
