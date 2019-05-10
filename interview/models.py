@@ -18,6 +18,8 @@ class CustomUser(AbstractUser):
 class Questions(models.Model):
 	#For reparenting in later version
 	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null = True)
+	def __str__(self):
+		return str(self.__class__.__name__) + str(self.id)
 
 class Profile(models.Model):
 	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null = True)
@@ -63,19 +65,27 @@ class Vehicle(models.Model):
 	#methods
 	def __str__(self):
 		return str('vehicle')
+	def carbon_per_km(self, city=True):
+		if city:
+			litres_per_hunded_km = self.fuel_economy_city
+		else:
+			litres_per_hunded_km = self.fuel_economy_highway
+		if self.fuel_type == 'diesel':
+			carbon_per_litre = carbon_footprint['litre of diesel']
+		else:
+			carbon_per_litre = carbon_footprint['litre of gasoline']
+		return litres_per_hunded_km * carbon_per_litre / 100
+
 	def footprint(self):
 		if self.fuel_type == 'diesel':
 			return self.fuel_ups * self.tank_size * Decimal(carbon_footprint['litre of diesel'])
 		else:
 			return self.fuel_ups * self.tank_size * Decimal(carbon_footprint['litre of gasoline'])
 	def footprint_distance_fuel_economy_approach(self):
-		if self.fuel_type == 'diesel':
-			fuel_burned_in_city = self.km_driven_city * self.fuel_economy_city
-			fuel_burned_on_highway = self.km_driven_highway * self.fuel_economy_highway
-			total_fuel_burned =  fuel_burned_in_city + fuel_burned_on_highway
-			return total_fuel_burned * carbon_footprint['litre of diesel']
-		else:
-			return total_fuel_burned * carbon_footprint['litre of gasoline']
+			carbon_burned_in_city = self.km_driven_city * self.carbon_per_km(city=True)
+			carbon_burned_on_highway = self.km_driven_highway * self.carbon_per_km(city=False)
+			return carbon_burned_in_city + carbon_burned_on_highway
+
 
 class Rideshare(models.Model):
 	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
@@ -191,58 +201,6 @@ class Residence(models.Model):
 	def footprint(self, total_lifetime_footprint = 80_000, years_per_lifetime = 50):
 		return total_lifetime_footprint / years_per_lifetime
 
-
-# class Appliances(models.Model):
-# 	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-# 	present = models.BooleanField('Do you have this appliance in your house?', null=True, blank=True)
-# 	efficient = models.BooleanField('Do you already have a high efficiency version of this appliance?', null=True, blank=True)
-
-# class Fridge(Appliances):
-# 	def __str__(self):
-# 		return 'fridge'
-# class DetachedFreezer(Appliances):
-# 	def __str__(self):
-# 		return 'detached freezer'
-# class Washer(Appliances):
-# 	def __str__(self):
-# 		return 'washer'
-# class Dryer(Appliances):
-# 	def __str__(self):
-# 		return 'dryer'
-# class Stove(Appliances):
-# 	def __str__(self):
-# 		return 'stove'
-# class Oven(Appliances):
-# 	def __str__(self):
-# 		return 'oven'
-# class Microwave(Appliances):
-# 	def __str__(self):
-# 		return 'microwave'
-# class Computer(Appliances):
-# 	def __str__(self):
-# 		return 'computer'
-# class Television(Appliances):
-# 	def __str__(self):
-# 		return 'television'
-# class Furnace(Appliances):
-# 	def __str__(self):
-# 		return 'furnace'
-# class Boiler(Appliances):
-# 	def __str__(self):
-# 		return 'boiler'
-# class Lights(Appliances):
-# 	def __str__(self):
-# 		return 'lights'
-# class AirConditioning(Appliances):
-# 	def __str__(self):
-# 		return 'furnace'
-# class Shower(Appliances):
-# 	def __str__(self):
-# 		return 'shower'
-# class Bathtub(Appliances):
-# 	def __str__(self):
-# 		return 'bathtub'
-
 class Trash(models.Model):
 	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 	garbage_bin_volume = models.IntegerField("How many litres does your trash bin hold?")
@@ -338,7 +296,7 @@ class Electricity(models.Model):
 	def __str__(self):
 		return 'electricity'
 	def footprint(self):
-		"""In this model, costs are coded as decimals and kwh are coded as integers, s0we go through all attributes and add the integers (i.e kwh) up to get total consumption. Note that id and user_id are stored as integers so we ignore them with the if statement. Pretty hacky. """
+		"""In this model, costs are coded as decimals and kwh are coded as integers, so we go through all attributes and add the integers (i.e kwh) up to get total consumption. Note that id and user_id are stored as integers so we ignore them with the if statement. Pretty hacky. """
 		total_consumption = 0
 		attributes = vars(self)
 		for monthly_consumption in attributes:
@@ -394,3 +352,55 @@ class Food(models.Model):
 			return carbon_footprint['vegetarian diet']
 		if self.diet == 'vegan':
 			return carbon_footprint['vegan diet']
+
+
+# class Appliances(models.Model):
+# 	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+# 	present = models.BooleanField('Do you have this appliance in your house?', null=True, blank=True)
+# 	efficient = models.BooleanField('Do you already have a high efficiency version of this appliance?', null=True, blank=True)
+
+# class Fridge(Appliances):
+# 	def __str__(self):
+# 		return 'fridge'
+# class DetachedFreezer(Appliances):
+# 	def __str__(self):
+# 		return 'detached freezer'
+# class Washer(Appliances):
+# 	def __str__(self):
+# 		return 'washer'
+# class Dryer(Appliances):
+# 	def __str__(self):
+# 		return 'dryer'
+# class Stove(Appliances):
+# 	def __str__(self):
+# 		return 'stove'
+# class Oven(Appliances):
+# 	def __str__(self):
+# 		return 'oven'
+# class Microwave(Appliances):
+# 	def __str__(self):
+# 		return 'microwave'
+# class Computer(Appliances):
+# 	def __str__(self):
+# 		return 'computer'
+# class Television(Appliances):
+# 	def __str__(self):
+# 		return 'television'
+# class Furnace(Appliances):
+# 	def __str__(self):
+# 		return 'furnace'
+# class Boiler(Appliances):
+# 	def __str__(self):
+# 		return 'boiler'
+# class Lights(Appliances):
+# 	def __str__(self):
+# 		return 'lights'
+# class AirConditioning(Appliances):
+# 	def __str__(self):
+# 		return 'furnace'
+# class Shower(Appliances):
+# 	def __str__(self):
+# 		return 'shower'
+# class Bathtub(Appliances):
+# 	def __str__(self):
+# 		return 'bathtub'

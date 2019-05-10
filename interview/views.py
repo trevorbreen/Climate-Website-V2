@@ -3,13 +3,11 @@ from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views import generic 
 from .forms import  all_models, all_formsets
+from .strategies import *
 
-#RESIDENCE MODEL IS NOT SAVING / FOOTPRINTING APPROPRIATELY
+
 def home(request):
 	return render(request, 'interview/home.html')
-
-def results(request):
-	return render(request, 'interview/results.html')
 
 
 class SignUp(generic.CreateView):
@@ -31,8 +29,8 @@ class Questions(generic.TemplateView):
 		form = formset(request.POST)
 		print(form)
 		if form.is_valid():
-			modified_forms = form.save(commit=False) # lets us add current user to entry before saving three lines down
 			print('form is valid')
+			modified_forms = form.save(commit=False) # lets us add current user to entry before saving three lines down
 			print(modified_forms)
 			for instance in modified_forms: # for loop to account for possibility of multiple forms submitted simultaneously (ex: flights)
 				instance.user = request.user
@@ -57,3 +55,24 @@ class Results(generic.TemplateView):
 					footprint_table[str(topic)+str(index)] = item.footprint()
 		context['footprint_table'] = footprint_table #see first line 
 		return render(request, "interview/results.html", context)
+
+
+def pull_user_info(django_model, index=0):
+	return django_model.objects.filter(user=request.user)[index]
+
+def increase_fuel_efficiency(yearly_distance_driven, fuel_type, old_litres_per_hundred_km, new_litres_per_hundred_km):
+	increase_in_efficiency_per_km = (old_litres_per_hundred_km - new_litres_per_hundred_km) * 100
+	return increase_in_efficiency_per_km * carbon_footprint[fuel_type] *  yearly_distance_driven  
+
+class Strategies(generic.TemplateView):
+	def get(self, request):
+		context, strategy_table  = ({}, {}) # footprint_table must eventually be a value in the context dict so the template can loop 
+		electricity = all_models['electricity'].objects.filter(user=request.user)[0]
+		strategy_table['reduce electricity consumption by 10%' ] = electricity.footprint()/10
+		strategy_table['drive less'] = drive_less(user.vehicle.mpg)
+		context['strategy_table'] = strategy_table
+
+		desired_model = pull_user_info('natural gas')
+		desired_model.attribute
+		desired.model.method(desired_model.attr))
+		return render(request, "interview/strategies.html", context)

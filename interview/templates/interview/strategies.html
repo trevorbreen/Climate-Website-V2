@@ -1,0 +1,16 @@
+<h1>Carbon Footprint Reduction</h1>
+<br>
+<table>
+		<tr>
+		<td><p>Strategy</p></td>
+		<td><p>Reduction</p></td>
+	</tr>
+{% for strategy, reduction  in strategy_table.items %}
+	<tr>
+		<td><p>{{strategy}}</p></td>
+		<td><p>{{reduction}} kilograms of CO2 equivalent</p></td>
+	</tr>
+{% endfor %}
+</table>
+<a href="{% url 'interview:home' %}">home</a>
+<br>

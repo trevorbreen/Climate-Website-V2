@@ -59,6 +59,7 @@ carbon_footprint ={
 # 1978 calories per day statscanada https://www150.statcan.gc.ca/n1/daily-quotidien/170620/dq170620b-eng.htm
 # 365.25 days per year
 # Diet input by user 
+
 #RideShare
 # 22.4 miles per gallon how bad are bananas
 # 25 mph lightrailnow

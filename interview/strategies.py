@@ -10,9 +10,23 @@ from .parameters import carbon_footprint
 # fuel types/effiencies for public transit,
 # airfreight kg/km
 
+def energy_consumed_by_boiler():
+	pass
+def replace_windows():
+	pass
+def insulate_attic():
+	pass
+def high_efficiency_furnace():
+	pass
+def air_sealing(age_of_house, upgrades=False, new_air_changes_per_hour=3):
+	pass
+def turn_down_thermostat(start_temp, end_temp, mean_average_ambient_temperature):
+	pass
+
+
 
 #Transportation
-def increase_fuel_efficiency(yearly_distance_driven, fuel_type):
+def increase_fuel_efficiency(yearly_distance_driven, fuel_type, old_litres_per_hundred_km, new_litres_per_hundred_km):
 	increase_in_efficiency_per_km = (old_litres_per_hundred_km - new_litres_per_hundred_km) * 100
 	return increase_in_efficiency_per_km * carbon_footprint[fuel_type] *  yearly_distance_driven  
 
@@ -166,10 +180,3 @@ def carbon_offset_per_tonne(tonnes):
 	return tonnes
 def carbon_offset_per_dollar(dollars, one_tonne_offset_cost):
 	return one_tonne_offset_cost/dollars
-
-
-
-def website(request, attribute):
-	#could pass a dictionary of kwargs 
-	print(request.attribute)
-	#might also work for class (not instance)
