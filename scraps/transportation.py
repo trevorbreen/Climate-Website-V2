@@ -183,7 +183,7 @@ class Commute(Questions):
 	minutes_on_bike = IntegerField("On average, how many minutes do you spend biking during a one-way commute?")
 	days_of_commute_per_week = IntegerField("On average, how many days do you commute per week?")
 	carpooling_passengers = IntegerField("On average, how many carpool passengers are there in a one-way commute?", helptext="enter 0 if you don't drive")
-	percentage_of_year = IntegerField("What percentage of your total commutes does this profile characterize?")
+	# percentage_of_year = IntegerField("What percentage of your total commutes does this profile characterize?")
 
 	def carbon_per_commute(Bike, Transit, Vehicle, minutes_of_biking, minutes_on_bus, minutes_on_train, minutes_of_waiting, minutes_on_freeway, minutes_in_city):
 		bike_carbon = Bike.carbon_per_minute() * minutes_on_bike

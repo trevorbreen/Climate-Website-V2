@@ -3,17 +3,12 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from .parameters import carbon_footprint
 from decimal import Decimal
+#from .forms import all_models
 
-#ISSUES
-#Issue: str() method does not produce unique names due to foreign keys
-#Solution: number the residence and transportation modules for each user, format 'user_residence_1_trash_info'
-#Issue: User cannot overwrite OneToOneField 
 
 # Create your models here.
 class CustomUser(AbstractUser):
-	user_type = 'basic'
-	def __str__(self):
-		return self.username
+	pass
 
 class Questions(models.Model):
 	#For reparenting in later version
@@ -28,11 +23,12 @@ class Profile(models.Model):
 	PREFERNOTTOSAY = 'n'
 	sex_choices = ((MALE, 'male'), (FEMALE, 'female'), (PREFERNOTTOSAY, 'I prefer not to say'))
 	age = models.IntegerField("What is your age?", blank = True, null=True)
-	sex = models.CharField("What is your biological sex (used for food intake estimation)?", max_length = 50, choices = sex_choices, blank = True, null=True)
+#	sex = models.CharField("What is your biological sex (used for food intake estimation)?", max_length = 50, choices = sex_choices, blank = True, null=True)
 	annual_income = models.IntegerField("What is your annual income before taxes?", blank = True, null=True)
 	savings = models.IntegerField("How much money do you save on a yearly basis? Use negative numbers to represent net borrowing.", blank = True, null=True)
 	hours_worked = models.IntegerField("How many hours do you spend working in a typical week?", blank = True, null=True)
-	shifts_per_week = models.IntegerField("How many shifts do you work per week?", blank= True, null = True)
+	shifts_per_week = models.FloatField("How many shifts do you work per week?", blank= True, null = True)
+	weeks_of_vacation = models.IntegerField("How many weeks of vacation (paid and unpaid) are you entitled to per year?", blank= True, null = True)
 	number_of_residences = models.IntegerField("How many residences do you have?", blank = True, null=True)
 	number_of_vehicles = models.IntegerField("How many vehicles do you own?", blank= True, null = True)
 	number_of_flights = models.IntegerField("How many flights did you take last year?", blank= True, null = True)
@@ -162,6 +158,8 @@ class Bicycle(models.Model):
 		carbon_per_calorie = food_carbon_per_year / calories_per_year
 		total_journey_time = self.journey_time *(self.spring_journeys/6 + self.summer_journeys/4 + self.autumn_journeys /6 +self.winter_journeys*(5/12)) #fractions represent share of months in season 
 		return carbon_per_calorie * calories_per_minute * total_journey_time
+
+
 
 class Residence(models.Model):
 	#Requres debug - is_valid() always returns form is not valid

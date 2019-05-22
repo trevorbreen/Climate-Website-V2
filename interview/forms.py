@@ -11,12 +11,10 @@ class CustomUserCreationForm(UserCreationForm):
         model = CustomUser
         fields = ('username', 'email')
 
-
 class CustomUserChangeForm(UserChangeForm):
-    class Meta:
+    class Meta(UserChangeForm):
         model = CustomUser
         fields = ('username', 'email')
-
 
 all_models = {
 	"profile": Profile,
